@@ -1,0 +1,10 @@
+.env
+.venv/
+.uv-cache/
+.pytest_cache/
+.ruff_cache/
+
+.pi/agent/auth.json
+.pi/agent/bin/
+.pi/agent/sessions/
+.pi/agent/*.log

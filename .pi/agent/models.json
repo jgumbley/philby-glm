@@ -1,0 +1,40 @@
+{
+  "providers": {
+    "openrouter": {
+      "baseUrl": "https://openrouter.ai/api/v1",
+      "api": "openai-completions",
+      "apiKey": "OPENROUTER_API_KEY",
+      "authHeader": true,
+      "headers": {
+        "HTTP-Referer": "https://github.com/local/philby-glm",
+        "X-Title": "philby-glm"
+      },
+      "models": [
+        {
+          "id": "z-ai/glm-5.2",
+          "name": "OpenRouter Z.ai GLM 5.2",
+          "reasoning": true,
+          "thinkingLevelMap": {
+            "off": null,
+            "minimal": null,
+            "low": null,
+            "medium": null,
+            "high": "high",
+            "xhigh": "xhigh"
+          },
+          "input": [
+            "text"
+          ],
+          "contextWindow": 1048576,
+          "maxTokens": 131072,
+          "cost": {
+            "input": 1.2,
+            "output": 4.1,
+            "cacheRead": 0.2,
+            "cacheWrite": 0
+          }
+        }
+      ]
+    }
+  }
+}

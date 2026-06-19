@@ -1,0 +1,9 @@
+{
+  "defaultProvider": "openrouter",
+  "defaultModel": "z-ai/glm-5.2",
+  "defaultThinkingLevel": "xhigh",
+  "enabledModels": [
+    "openrouter/z-ai/glm-5.2:xhigh"
+  ],
+  "quietStartup": false
+}
