@@ -4,6 +4,7 @@
   "defaultThinkingLevel": "high",
   "hideThinkingBlock": true,
   "treeFilterMode": "no-tools",
+  "collapseChangelog": true,
   "compaction": {
     "enabled": true,
     "reserveTokens": 24576,
@@ -20,7 +21,10 @@
   },
   "steeringMode": "one-at-a-time",
   "followUpMode": "one-at-a-time",
-  "quietStartup": false,
+  "quietStartup": true,
   "lastChangelogVersion": "0.79.8",
-  "theme": "dark"
+  "theme": "philby-minimal",
+  "packages": [
+    "npm:pi-thinking-box@1.2.3"
+  ]
 }

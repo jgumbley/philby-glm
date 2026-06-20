@@ -13,11 +13,11 @@ PI_THINKING ?= high
 PI_MODELS ?= $(PI_MODEL):$(PI_THINKING)
 PI_SESSION_NAME ?= philby-operator
 PI_SYSTEM_PROMPT ?= system.md
-PI_PANE_LABEL ?= philby-glm
+PI_PANE_LABEL ?= philby
 PI_ENTRYPOINT ?= pi
 PHILBY_TMUX_SOCKET ?= philby-glm
 PHILBY_TMUX_SESSION ?= philby
-PHILBY_TMUX_WINDOW ?= operator
+PHILBY_TMUX_WINDOW ?= 1
 PHILBY_TMUX_CONF ?= $(CURDIR)/tmux/philby.conf
 PI_ARTIFACT_DIR ?= $(CURDIR)/.pi/artifacts
 IMAGE ?= $(PI_ARTIFACT_DIR)/operator-demo.png
@@ -85,8 +85,13 @@ tmux-start:
 
 tmux-entry:
 	@set -u; \
+	if command -v tmux >/dev/null 2>&1 && [ -n "$${TMUX:-}" ]; then \
+		tmux rename-window "$(PHILBY_TMUX_WINDOW)" 2>/dev/null || true; \
+		tmux select-pane -T "$(PI_PANE_LABEL)" 2>/dev/null || true; \
+	fi; \
+	printf '\033]2;%s\007' "$(PI_PANE_LABEL)"; \
 	status=0; \
-	$(MAKE) --no-print-directory -f common.mk pi PI_ENTRYPOINT="$(PI_ENTRYPOINT)" || status=$$?; \
+	$(MAKE) --no-print-directory -f common.mk pi-agent || status=$$?; \
 	if [ "$$status" -ne 0 ]; then \
 		printf '\nphilby says: agent startup exited with status %s\n' "$$status" >&2; \
 	fi; \
@@ -99,8 +104,12 @@ digest-raw:
 		-path "./.git" -prune -o \
 		-path "./.venv" -prune -o \
 		-path "./.uv-cache" -prune -o \
+		-path "./.pi/agent/git" -prune -o \
+		-path "./.pi/agent/npm" -prune -o \
 		-path "./.pi/agent/sessions" -prune -o \
 		-path "./.pi/agent/auth.json" -prune -o \
+		-path "./.pi/git" -prune -o \
+		-path "./.pi/npm" -prune -o \
 		-type f \( \
 			-name "*.md" -o \
 			-name "*.conf" -o \
@@ -158,7 +167,11 @@ pi:
 		$(MAKE) --no-print-directory -f common.mk tmux-start PI_ENTRYPOINT="$$entrypoint"; \
 		exit 0; \
 	fi; \
-	bash ./pane.sh "$(PI_PANE_LABEL)" $(MAKE) --no-print-directory pi-agent
+	if command -v tmux >/dev/null 2>&1; then \
+		tmux rename-window "$(PHILBY_TMUX_WINDOW)" 2>/dev/null || true; \
+		tmux select-pane -T "$(PI_PANE_LABEL)" 2>/dev/null || true; \
+	fi; \
+	$(MAKE) --no-print-directory -f common.mk pi-agent
 
 pi-agent:
 	@set -euo pipefail; \
@@ -166,6 +179,8 @@ pi-agent:
 		printf 'pi-agent must run inside tmux. Use: make pi\n' >&2; \
 		exit 2; \
 	fi; \
+	if command -v tmux >/dev/null 2>&1; then tmux select-pane -T "$(PI_PANE_LABEL)" 2>/dev/null || true; fi; \
+	printf '\033]2;%s\007' "$(PI_PANE_LABEL)"; \
 	test -f "$(PI_SYSTEM_PROMPT)"; \
 	test -f "$(PI_CODING_AGENT_DIR)/models.json"; \
 	test -f "$(PI_CODING_AGENT_DIR)/settings.json"; \
@@ -178,6 +193,7 @@ pi-agent:
 		--session-dir "$(PI_CODING_AGENT_SESSION_DIR)" \
 		--name "$(PI_SESSION_NAME)" \
 		--append-system-prompt "$(PI_SYSTEM_PROMPT)" \
+		--approve \
 	); \
 	if [ -n "$${PI_INITIAL_PROMPT:-}" ]; then \
 		args+=("$$PI_INITIAL_PROMPT"); \

@@ -21,7 +21,7 @@ Default personality:
 Runtime contract:
 - You are expected to operate inside the Philby tmux environment. If the operator
   starts from a normal shell, bare `make` creates or attaches that environment
-  with `tmux/philby.conf`.
+  with `tmux/philby.conf`, using window `1` and pane title `philby`.
 - Read `Makefile` first in every session.
 - Use `make help` for available commands and `make digest` for project context.
 - Treat Makefile targets as your tool interface. Do not bypass them with raw shell commands when a target exists.
@@ -32,8 +32,8 @@ Runtime contract:
   informal inspection.
 
 Core tools:
-- `make` launches or attaches the Philby tmux environment and opens or reuses
-  the primary Philby GLM operator pane.
+- `make` launches or attaches the Philby tmux environment and runs the primary
+  Philby GLM operator in the current `philby` pane.
 - `make run` is the explicit alias for the primary launch path.
 - `make digest` prints the canonical project context.
 - `make ingest` copies that context through OSC 52.

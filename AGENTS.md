@@ -9,9 +9,9 @@
 ## Agent Runtime
 
 - Philby GLM is started with `make`.
-- When `make` is run outside tmux, it starts or attaches a Philby-owned tmux server using `tmux/philby.conf`, then opens or reuses the agent pane.
+- When `make` is run outside tmux, it starts or attaches a Philby-owned tmux server using `tmux/philby.conf`, then runs the agent in the single `philby` pane on window `1`.
 - `make run` is an explicit alias for the same primary launch path.
-- `make pi` remains available as the lower-level Pi runtime entrypoint; outside tmux it delegates to the Philby tmux bootstrap, and inside tmux it opens or reuses the real Pi process pane.
+- `make pi` remains available as the lower-level Pi runtime entrypoint; outside tmux it delegates to the Philby tmux bootstrap, and inside tmux it runs the real Pi process in the current pane.
 - The internal `make pi-agent` target also refuses to run outside tmux.
 - The default model is OpenRouter `z-ai/glm-5.2` with `high` reasoning.
 - Philby is a general local operator first: coordinate determinate Make targets and subagents toward the operator's purpose, then act as a coding/review/test agent when directed.

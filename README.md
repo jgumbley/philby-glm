@@ -17,9 +17,9 @@ make
 ```
 
 `make` starts or attaches a Philby-owned tmux server using `tmux/philby.conf`,
-then opens or reuses the primary Philby GLM operator pane. `make run` is an
-explicit alias for the same path. `make pi` remains the lower-level launch target
-for the same agent.
+then runs the primary Philby GLM operator in the single `philby` pane on window
+`1`. `make run` is an explicit alias for the same path. `make pi` remains the
+lower-level launch target for the same agent.
 
 Run checks:
 
@@ -66,6 +66,8 @@ Tracked files use the environment variable name only. The local `.env` file is i
 - `common.mk` owns the implementation of targets.
 - `tmux/philby.conf` is the repo-local tmux configuration used by bare `make`.
 - `pane.sh` opens or reuses tmux panes.
+- `.pi/agent/extensions/` contains repo-local Pi extensions.
+- `.pi/agent/themes/` contains the repo-local Pi theme.
 - `system.md` is the default Philby GLM personality.
 - `AGENTS.md` is the repo contract for coding agents.
 - `scripts/image_demo.py` is a deterministic local visual-artifact generator.

@@ -8,6 +8,10 @@ __pycache__/
 
 .pi/agent/auth.json
 .pi/agent/bin/
+.pi/agent/git/
+.pi/agent/npm/
 .pi/agent/sessions/
 .pi/agent/*.log
+.pi/git/
+.pi/npm/
 .pi/artifacts/
