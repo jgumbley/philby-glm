@@ -4,16 +4,105 @@ set -euo pipefail
 usage() {
   cat >&2 <<'EOF'
 Usage:
-  pane.sh <pane-label> <command ...>
-  pane.sh --shell <pane-label>
+  pane.sh [--orient col|row] <pane-label> <command ...>
+  pane.sh [--orient col|row] --shell <pane-label>
+  pane.sh --kill [--force] <pane-id-or-label>
+
+--orient selects the split direction of the new pane (default: row,
+or $AGENT_PANE_ORIENT if set):
+  row  split vertically, stacking panes as rows.
+  col  split horizontally, placing panes side by side as columns.
+
+Kill mode resolves <pane-id-or-label> as an exact pane id (e.g. %13)
+first, then as an exact pane title/label (e.g. philby-hal). It refuses
+to kill the pane it is run from unless --force is given.
 EOF
   exit 1
 }
 
+kill_pane() {
+  ref="$1"
+  force="${2:-0}"
+  if [ -z "${TMUX:-}" ]; then
+    echo "pane kill must be run from inside an existing tmux session." >&2
+    exit 1
+  fi
+  session_id="$(tmux display-message -p '#{session_id}')"
+  target_pane=""
+  while IFS= read -r line; do
+    pid="${line%%::*}"
+    rest="${line#*::}"
+    title="${rest%%::*}"
+    sid="${rest##*::}"
+    [ "$sid" != "$session_id" ] && continue
+    if [ "$pid" = "$ref" ] || [ "$title" = "$ref" ]; then
+      target_pane="$pid"
+      break
+    fi
+  done < <(tmux list-panes -a -F '#{pane_id}::#{pane_title}::#{session_id}' 2>/dev/null || true)
+  if [ -z "$target_pane" ]; then
+    echo "No pane matching \"$ref\" (by id or title) in this session." >&2
+    exit 1
+  fi
+  if [ "$target_pane" = "${TMUX_PANE:-}" ] && [ "$force" -ne 1 ]; then
+    echo "Refusing to kill the current pane ($target_pane). Re-run with --force to override." >&2
+    exit 1
+  fi
+  tmux kill-pane -t "$target_pane"
+  echo "Killed pane $target_pane (matched \"$ref\")."
+}
+
 use_shell=0
-if [ "${1:-}" = "--shell" ]; then
-  use_shell=1
-  shift
+kill_mode=0
+force=0
+orient="${AGENT_PANE_ORIENT:-row}"
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --shell)
+      use_shell=1
+      shift
+      ;;
+    --orient)
+      [ $# -ge 2 ] || usage
+      orient="$2"
+      shift 2
+      ;;
+    --kill)
+      kill_mode=1
+      shift
+      ;;
+    --force)
+      force=1
+      shift
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -*)
+      usage
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+case "$orient" in
+  col|row) ;;
+  *) echo "invalid --orient value \"$orient\" (expected col or row)" >&2; usage ;;
+esac
+
+if [ "$force" -eq 1 ] && [ "$kill_mode" -ne 1 ]; then
+  usage
+fi
+
+if [ "$kill_mode" -eq 1 ]; then
+  if [ $# -lt 1 ]; then
+    usage
+  fi
+  kill_pane "$1" "$force"
+  exit 0
 fi
 
 if [ $# -lt 1 ]; then
@@ -45,12 +134,22 @@ if [ -z "${TMUX:-}" ]; then
 fi
 
 repo_root="$(pwd)"
-pane_height="${AGENT_PANE_PERCENT:-45}"
-current_height="$(tmux display-message -p '#{pane_height}' 2>/dev/null || true)"
-pane_lines="$pane_height"
-if [ -n "$current_height" ] && [ "$current_height" -gt 0 ] 2>/dev/null; then
-  pane_lines=$((current_height * pane_height / 100))
-  [ "$pane_lines" -lt 3 ] && pane_lines=3
+pane_pct="${AGENT_PANE_PERCENT:-45}"
+kitty_graphics=0
+if command -v kitty >/dev/null 2>&1; then
+  kitty_graphics=1
+fi
+if [ "$orient" = "col" ]; then
+  split_dir="-h"
+  current_size="$(tmux display-message -p '#{pane_width}' 2>/dev/null || true)"
+else
+  split_dir="-v"
+  current_size="$(tmux display-message -p '#{pane_height}' 2>/dev/null || true)"
+fi
+pane_size="$pane_pct"
+if [ -n "$current_size" ] && [ "$current_size" -gt 0 ] 2>/dev/null; then
+  pane_size=$((current_size * pane_pct / 100))
+  [ "$pane_size" -lt 3 ] && pane_size=3
 fi
 
 session_id="$(tmux display-message -p '#{session_id}')"
@@ -83,6 +182,10 @@ fi
 pane_label="$1"
 shift
 
+export PHILBY_PANE_LABEL="$pane_label"
+export PHILBY_REPO_ROOT="${PHILBY_REPO_ROOT:-$(pwd)}"
+export PHILBY_KITTY_GRAPHICS="${PHILBY_KITTY_GRAPHICS:-0}"
+
 cmd_display="$(printf ' %q' "$@")"
 cmd_display="${cmd_display:1}"
 
@@ -93,6 +196,8 @@ cat <<EOF
 
 If prompted for credentials, type them directly in this pane.
 Secrets typed here are not echoed and will not appear in captured output.
+
+If PHILBY_KITTY_GRAPHICS=1, visual Make targets can display images through Kitty.
 
 When the command finishes, reuse this same pane to rerun it:
 - press Enter in this pane, or
@@ -124,8 +229,8 @@ done
 exit "$status"
 RUNNER_EOF
 
-pane_id="$(tmux split-window -b -v -l "$pane_lines" -c "$repo_root" -P -F '#{pane_id}' \
-  bash "$runner_script" "$pane_label" "$@")"
+pane_id="$(tmux split-window -b $split_dir -l "$pane_size" -c "$repo_root" -P -F '#{pane_id}' \
+  env PHILBY_REPO_ROOT="$repo_root" PHILBY_KITTY_GRAPHICS="$kitty_graphics" bash "$runner_script" "$pane_label" "$@")"
 rm -f "$runner_script"
 
 cat <<EOF

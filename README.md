@@ -1,17 +1,25 @@
 # philby-glm
 
-Philby GLM is a Makefile-first Pi agent harness for running a GLM coding agent in tmux.
+Philby GLM is a Makefile-first Pi operator harness for coordinating determinate
+local tasks through tmux panes.
 
-The default model is OpenRouter `z-ai/glm-5.2` with `xhigh` reasoning. Local Pi state lives under `.pi/agent`, while secrets and sessions stay untracked.
+The default model is OpenRouter `z-ai/glm-5.2` with `xhigh` reasoning. Local Pi
+state lives under `.pi/agent`, while secrets, sessions, logs, and generated
+artifacts stay untracked.
 
 ## Use
 
-Start from an existing tmux session:
+Start Philby from a normal shell:
 
 ```sh
 cd /home/system/wip/philby-glm
-make pi
+make
 ```
+
+`make` starts or attaches a Philby-owned tmux server using `tmux/philby.conf`,
+then opens or reuses the primary Philby GLM operator pane. `make run` is an
+explicit alias for the same path. `make pi` remains the lower-level launch target
+for the same agent.
 
 Run checks:
 
@@ -19,10 +27,30 @@ Run checks:
 make test
 ```
 
+Show the configured model and the active model cycle list:
+
+```sh
+make models
+```
+
+Override models for a run:
+
+```sh
+make run PI_MODEL=openrouter/z-ai/glm-5.2 PI_THINKING=high
+make run PI_MODELS='openrouter/z-ai/glm-5.2:xhigh,openrouter/openai/gpt-5.5:high'
+```
+
 Spawn a subagent pane:
 
 ```sh
 make subagent name=review prompt='Read Makefile and AGENTS.md, then review the current changes.'
+```
+
+Generate and display a local image artifact through Kitty when available:
+
+```sh
+make image-demo
+make image-show IMAGE=.pi/artifacts/operator-demo.png
 ```
 
 ## Secrets
@@ -35,6 +63,8 @@ Tracked files use the environment variable name only. The local `.env` file is i
 
 - `Makefile` is the public entry point.
 - `common.mk` owns the implementation of targets.
+- `tmux/philby.conf` is the repo-local tmux configuration used by bare `make`.
 - `pane.sh` opens or reuses tmux panes.
 - `system.md` is the default Philby GLM personality.
 - `AGENTS.md` is the repo contract for coding agents.
+- `scripts/image_demo.py` is a deterministic local visual-artifact generator.

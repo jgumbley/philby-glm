@@ -5,5 +5,8 @@
   "enabledModels": [
     "openrouter/z-ai/glm-5.2:xhigh"
   ],
-  "quietStartup": false
+  "quietStartup": false,
+  "lastChangelogVersion": "0.79.8",
+  "theme": "dark",
+  "hideThinkingBlock": true
 }
