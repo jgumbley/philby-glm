@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: help run tmux-start tmux-entry digest digest-raw ingest pane pi pi-agent pi-check models subagent codex ascii-text generate-ascii-text image-demo image-show lg respawn spec task task-new task-event task-step task-status task-show task-list task-check test clean
+.PHONY: help run tmux-start tmux-entry digest digest-raw ingest pane pi pi-agent pi-check models subagent codex ascii-text generate-ascii-text image-demo image-show lg respawn test clean
 
 export PI_CODING_AGENT_DIR := $(CURDIR)/.pi/agent
 export PI_CODING_AGENT_SESSION_DIR := $(PI_CODING_AGENT_DIR)/sessions
@@ -20,8 +20,6 @@ PHILBY_TMUX_SESSION ?= philby
 PHILBY_TMUX_WINDOW ?= 1
 PHILBY_TMUX_CONF ?= $(CURDIR)/tmux/philby.conf
 PI_ARTIFACT_DIR ?= $(CURDIR)/.pi/artifacts
-TASK_DIR ?= $(PI_CODING_AGENT_DIR)/tasks
-SPEC_TASK ?= $(CURDIR)/spec/task.example.json
 IMAGE ?= $(PI_ARTIFACT_DIR)/operator-demo.png
 TEXT ?= here
 
@@ -284,39 +282,7 @@ respawn:
 	printf 'philby says: reloaded %s on socket %s; menubar refreshed.\n' "$$conf" "$$socket"
 	$(call success)
 
-spec:
-	@python3 scripts/validate_task.py "$(SPEC_TASK)"
-	$(call success)
-
-task-new:
-	@python3 scripts/task.py new --goal "$(goal)" $(if $(given),--given "$(given)") $(if $(when),--when "$(when)") $(if $(then),--then "$(then)")
-	$(call success)
-
-task-event:
-	@python3 scripts/task.py event --command "$(command)" --exit "$(exit)" --summary "$(summary)"
-	$(call success)
-
-task-step:
-	@python3 scripts/task.py step --step "$(step)" --state "$(state)"
-	$(call success)
-
-task-status:
-	@python3 scripts/task.py status --status "$(status)"
-	$(call success)
-
-task-show:
-	@python3 scripts/task.py show $(if $(id),$(id))
-	$(call success)
-
-task-list:
-	@python3 scripts/task.py list
-	$(call success)
-
-task-check:
-	@python3 scripts/task.py check $(if $(id),$(id))
-	$(call success)
-
-test: spec pi-check
+test: pi-check
 	@$(MAKE) --no-print-directory -f common.mk digest-raw >/dev/null
 	$(call success)
 
