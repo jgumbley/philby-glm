@@ -324,7 +324,18 @@ image-show:
 lg:
 	@set -euo pipefail; \
 	command -v lazygit >/dev/null 2>&1 || { printf 'lazygit not found on PATH.\n' >&2; exit 127; }; \
-	exec lazygit -p "$(CURDIR)"
+	if [ -z "$${TMUX:-}" ]; then \
+		printf 'philby says: make lg must run inside the philby tmux session. Start it with: make\n' >&2; \
+		exit 2; \
+	fi; \
+	if tmux list-windows -F '#{window_name}' 2>/dev/null | grep -xFq 'lazygit'; then \
+		tmux select-window -t lazygit; \
+		printf 'philby says: focused existing lazygit window.\n'; \
+	else \
+		tmux new-window -n lazygit -c "$(CURDIR)" "lazygit -p \"$(CURDIR)\""; \
+		printf 'philby says: opened lazygit in a new window (closes on exit). Navigate with Ctrl-End/Ctrl-Home; close with Ctrl-Delete.\n'; \
+	fi
+	$(call success)
 
 respawn:
 	@set -euo pipefail; \
