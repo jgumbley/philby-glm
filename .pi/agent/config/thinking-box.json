@@ -1,9 +1,11 @@
 {
-	"bgColor": "#252526",
-	"paddingX": 0,
-	"paddingY": 0,
-	"showHeader": false,
-	"showThinkingLevel": false,
-	"showArrow": false,
-	"showLineCount": false
+	"enabled": true,
+	"bgColor": "#1C2B3A",
+	"paddingX": 1,
+	"paddingY": 1,
+	"showHeader": true,
+	"headerLabel": "Thinking",
+	"showThinkingLevel": true,
+	"showArrow": true,
+	"showLineCount": true
 }

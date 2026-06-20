@@ -2,7 +2,7 @@
   "defaultProvider": "openrouter",
   "defaultModel": "z-ai/glm-5.2",
   "defaultThinkingLevel": "high",
-  "hideThinkingBlock": true,
+  "hideThinkingBlock": false,
   "treeFilterMode": "no-tools",
   "collapseChangelog": true,
   "compaction": {

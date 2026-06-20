@@ -36,7 +36,7 @@
 		"muted": "muted",
 		"dim": "dim",
 		"text": "foreground",
-		"thinkingText": "muted",
+		"thinkingText": "secondary",
 
 		"selectedBg": "selection",
 		"userMessageBg": "surface",
@@ -79,8 +79,8 @@
 		"thinkingMinimal": "borderHi",
 		"thinkingLow": "#569CD6",
 		"thinkingMedium": "accent",
-		"thinkingHigh": "#B27BC2",
-		"thinkingXhigh": "warning",
+		"thinkingHigh": "#569CD6",
+		"thinkingXhigh": "accent",
 
 		"bashMode": "green"
 	},
