@@ -3,7 +3,7 @@
 Philby GLM is a Makefile-first Pi operator harness for coordinating determinate
 local tasks through tmux panes.
 
-The default model is OpenRouter `z-ai/glm-5.2` with `xhigh` reasoning. Local Pi
+The default model is OpenRouter `z-ai/glm-5.2` with `high` reasoning. Local Pi
 state lives under `.pi/agent`, while secrets, sessions, logs, and generated
 artifacts stay untracked.
 
@@ -37,6 +37,7 @@ Override models for a run:
 
 ```sh
 make run PI_MODEL=openrouter/z-ai/glm-5.2 PI_THINKING=high
+make run PI_THINKING=xhigh
 make run PI_MODELS='openrouter/z-ai/glm-5.2:xhigh,openrouter/openai/gpt-5.5:high'
 ```
 

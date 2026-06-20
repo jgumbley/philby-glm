@@ -9,7 +9,7 @@ PI_PROVIDER ?= openrouter
 PI_MODEL_ID ?= z-ai/glm-5.2
 PI_MODEL ?= $(PI_PROVIDER)/$(PI_MODEL_ID)
 PI_MODEL_SEARCH ?= $(PI_MODEL)
-PI_THINKING ?= xhigh
+PI_THINKING ?= high
 PI_MODELS ?= $(PI_MODEL):$(PI_THINKING)
 PI_SESSION_NAME ?= philby-operator
 PI_SYSTEM_PROMPT ?= system.md
@@ -107,6 +107,7 @@ digest-raw:
 			-name "*.mk" -o \
 			-name "*.py" -o \
 			-name "*.sh" -o \
+			-name "*.ts" -o \
 			-name "*.json" -o \
 			-name "Makefile" -o \
 			-name ".gitignore" -o \
