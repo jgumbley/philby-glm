@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: help run tmux-start tmux-entry digest digest-raw ingest pane pi pi-agent pi-check models subagent codex ascii-text generate-ascii-text image-demo image-show lg respawn test clean
+.PHONY: help run tmux-start tmux-entry digest digest-raw ingest pane pi pi-agent pi-check models subagent codex ask reason research twitter ascii-text generate-ascii-text image-demo image-show lg respawn test clean
 
 export PI_CODING_AGENT_DIR := $(CURDIR)/.pi/agent
 export PI_CODING_AGENT_SESSION_DIR := $(PI_CODING_AGENT_DIR)/sessions
@@ -27,6 +27,22 @@ CODEX_PROMPT ?= $(if $(PROMPT),$(PROMPT),)
 CODEX_MODEL ?=
 CODEX_SANDBOX ?= read-only
 export CODEX_PROMPT
+
+# --- Delegation / model routing -------------------------------------------------
+# Each target runs a fresh, ephemeral Pi session (no tools, no project context,
+# no memory of this one) and prints the delegate's answer on stdout.
+# Override any model with the matching *_MODEL variable, e.g.:
+#   make research RESEARCH_MODEL=perplexity/sonar
+ASK_MODEL ?= openrouter/z-ai/glm-5.2
+ASK_THINKING ?= high
+REASON_MODEL ?= openrouter/openai/gpt-5.5-pro
+REASON_THINKING ?= high
+# OpenRouter ":online" suffix enables server-side web search; no separate key.
+# gpt-5.5 (reasoning-capable) + :online = smart, web-grounded answers.
+RESEARCH_MODEL ?= openrouter/openai/gpt-5.5:online
+RESEARCH_THINKING ?= low
+TWITTER_MODEL ?= openrouter/x-ai/grok-4.3:online
+TWITTER_THINKING ?= off
 SUBAGENT_NAME ?= $(if $(name),$(name),subagent)
 SUBAGENT_PROMPT ?= $(if $(prompt),$(prompt),Read Makefile, run make digest, and wait for the operator's task.)
 
@@ -238,6 +254,48 @@ codex:
 	[ -n "$(CODEX_MODEL)" ] && args+=(-m "$(CODEX_MODEL)"); \
 	args+=("$$prompt"); \
 	"$${args[@]}"
+
+# Underlying primitive: route a self-contained prompt to any configured model.
+# Usage: make ask ASK_MODEL=<provider/model> prompt='...'
+#        echo '...' | make ask ASK_MODEL=<provider/model>
+ask:
+	@set -euo pipefail; \
+	if [ -f .env ]; then set -a; . ./.env; set +a; fi; \
+	prompt="$${prompt:-$${PROMPT:-}}"; \
+	if [ -z "$$prompt" ]; then \
+		if [ -t 0 ]; then printf 'Usage: make ask ASK_MODEL=<provider/model> prompt="..."  (or pipe on stdin)\n' >&2; exit 2; fi; \
+		prompt="$$(cat)"; \
+	fi; \
+	if [ -z "$$prompt" ]; then printf 'Usage: make ask ASK_MODEL=<provider/model> prompt="..."  (or pipe on stdin)\n' >&2; exit 2; fi; \
+	command -v pi >/dev/null 2>&1 || { printf 'pi CLI not found on PATH.\n' >&2; exit 127; }; \
+	model="$(ASK_MODEL)"; \
+	case "$$model" in \
+		openrouter/*) : "$${OPENROUTER_API_KEY:?OPENROUTER_API_KEY is required for $$model. Put it in .env.}" ;; \
+		*) : "$${OPENROUTER_API_KEY:?OPENROUTER_API_KEY is required for $$model (all delegation routes through OpenRouter). Put it in .env.}" ;; \
+	esac; \
+	exec pi --print --no-tools --no-extensions --no-skills --no-themes --no-context-files --no-approve \
+		--no-session --model "$$model" --thinking "$(ASK_THINKING)" "$$prompt"
+
+# Deep reasoning / hard analysis via a flagship reasoning model.
+# Usage: make reason prompt='...'
+reason:
+	@$(MAKE) --no-print-directory -f common.mk ask \
+		ASK_MODEL="$(REASON_MODEL)" ASK_THINKING="$(REASON_THINKING)" \
+		prompt="$${prompt:-$${PROMPT:-}}"
+
+# General open-web search via OpenRouter's ":online" web plugin. Returns unverified external claims.
+# Usage: make research prompt='...'
+research:
+	@$(MAKE) --no-print-directory -f common.mk ask \
+		ASK_MODEL="$(RESEARCH_MODEL)" ASK_THINKING="$(RESEARCH_THINKING)" \
+		prompt="$${prompt:-$${PROMPT:-}}"
+
+# Real-time X/Twitter search via Grok (OpenRouter, ":online" for live web). Returns social claims, not fact.
+# Usage: make twitter prompt='...'
+twitter:
+	@$(MAKE) --no-print-directory -f common.mk ask \
+		ASK_MODEL="$(TWITTER_MODEL)" ASK_THINKING="$(TWITTER_THINKING)" \
+		prompt="$${prompt:-$${PROMPT:-}}"
 
 ascii-text:
 	@python3 scripts/ascii_text.py "$(TEXT)"

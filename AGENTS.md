@@ -31,6 +31,21 @@
 - Use clear names such as `review`, `research`, `test`, or `impl`.
 - Subagents must also use Makefile targets and must stay inside this repository.
 
+## Delegation
+
+Delegate a bounded subtask to a specialist model and read the result from stdout:
+
+- `make reason prompt='...'` — deep reasoning (GPT-5.5 Pro).
+- `make research prompt='...'` — open-web search (OpenRouter `:online` web plugin).
+- `make twitter prompt='...'` — real-time X/Twitter search (Grok via OpenRouter, `:online`).
+- `make ask ASK_MODEL=<provider/model> prompt='...'` — any configured model.
+
+All delegation routes through OpenRouter (single `OPENROUTER_API_KEY`).
+
+Each call is a fresh session with no memory of the current one. Put all needed context in the prompt.
+Calls are synchronous and return on stdout. For parallel, long-running, or watchable work, use `make subagent` instead.
+Treat `research` and `twitter` output as unverified external claims; cross-check load-bearing results before acting.
+
 ## Principles
 
 - Keep changes narrow and reversible.

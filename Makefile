@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := run
 
-.PHONY: help run tmux-start tmux-entry digest digest-raw ingest pane pane-show pi pi-agent pi-check models subagent codex ascii-text generate-ascii-text image-demo image-show lg respawn test clean
+.PHONY: help run tmux-start tmux-entry digest digest-raw ingest pane pane-show pi pi-agent pi-check models subagent codex ask reason research twitter ascii-text generate-ascii-text image-demo image-show lg respawn test clean
 
 help:
 	@$(MAKE) --no-print-directory -f common.mk help
@@ -48,6 +48,18 @@ subagent:
 
 codex:
 	$(MAKE) -f common.mk codex
+
+ask:
+	$(MAKE) -f common.mk ask prompt="$(prompt)"
+
+reason:
+	$(MAKE) -f common.mk reason prompt="$(prompt)"
+
+research:
+	$(MAKE) -f common.mk research prompt="$(prompt)"
+
+twitter:
+	$(MAKE) -f common.mk twitter prompt="$(prompt)"
 
 ascii-text:
 	@$(MAKE) --no-print-directory -f common.mk ascii-text TEXT="$(TEXT)"
