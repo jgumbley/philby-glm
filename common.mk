@@ -344,8 +344,8 @@ respawn:
 	test -f "$$conf"; \
 	socket="$(PHILBY_TMUX_SOCKET)"; \
 	if ! tmux -L "$$socket" info >/dev/null 2>&1; then \
-		printf 'philby says: tmux server "%s" is not running. Start it with: make\n' "$$socket" >&2; \
-		exit 1; \
+		printf 'philby says: tmux server "%s" is not running; bootstrapping via make tmux-start.\n' "$$socket" >&2; \
+		exec $(MAKE) --no-print-directory -f common.mk tmux-start PI_ENTRYPOINT="$(PI_ENTRYPOINT)"; \
 	fi; \
 	tmux -L "$$socket" source-file "$$conf"; \
 	printf 'philby says: reloaded %s on socket %s; menubar refreshed.\n' "$$conf" "$$socket"

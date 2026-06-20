@@ -22,7 +22,7 @@
   "steeringMode": "one-at-a-time",
   "followUpMode": "one-at-a-time",
   "quietStartup": true,
-  "lastChangelogVersion": "0.79.8",
+  "lastChangelogVersion": "0.79.9",
   "theme": "philby-minimal",
   "packages": []
 }
