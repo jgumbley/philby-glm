@@ -2,7 +2,7 @@
   "defaultProvider": "openrouter",
   "defaultModel": "z-ai/glm-5.2",
   "defaultThinkingLevel": "high",
-  "hideThinkingBlock": false,
+  "hideThinkingBlock": true,
   "treeFilterMode": "no-tools",
   "collapseChangelog": true,
   "compaction": {
@@ -24,7 +24,5 @@
   "quietStartup": true,
   "lastChangelogVersion": "0.79.8",
   "theme": "philby-minimal",
-  "packages": [
-    "npm:pi-thinking-box@1.2.3"
-  ]
+  "packages": []
 }

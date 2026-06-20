@@ -8,7 +8,7 @@ export default function (pi: ExtensionAPI) {
 		if (ctx.mode !== "tui") return;
 
 		ctx.ui.setHiddenThinkingLabel(".");
-		ctx.ui.setWorkingIndicator({ frames: [] });
+		ctx.ui.setWorkingIndicator({ frames: ["-", "\\", "|", "/"], intervalMs: 120 });
 
 		ctx.ui.setHeader((_tui, _theme) => ({
 			invalidate() {},
