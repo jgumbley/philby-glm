@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: help run tmux-start tmux-entry digest digest-raw ingest pane pi pi-agent pi-check models subagent codex ask reason research twitter ascii-text generate-ascii-text image-demo image-show lg respawn test clean
+.PHONY: help run tmux-start tmux-entry digest digest-raw ingest pane pi pi-agent pi-check models subagent codex ask reason research twitter ascii-text generate-ascii-text image-demo image-show lg window respawn test clean
 
 export PI_CODING_AGENT_DIR := $(CURDIR)/.pi/agent
 export PI_CODING_AGENT_SESSION_DIR := $(PI_CODING_AGENT_DIR)/sessions
@@ -334,6 +334,32 @@ lg:
 	else \
 		tmux new-window -n lazygit -c "$(CURDIR)" "lazygit -p \"$(CURDIR)\""; \
 		printf 'philby says: opened lazygit in a new window (closes on exit). Navigate with Ctrl-End/Ctrl-Home; close with Ctrl-Delete.\n'; \
+	fi
+	$(call success)
+
+# Open an interactive shell in a new tmux window. Default shell is fish.
+# Usage: make window [shell=fish] [name=shell]
+WINDOW_SHELL ?= fish
+WINDOW_NAME ?= shell
+window:
+	@set -euo pipefail; \
+	command -v tmux >/dev/null 2>&1; \
+	shell="$(WINDOW_SHELL)"; \
+	name="$(WINDOW_NAME)"; \
+	if [ -z "$${TMUX:-}" ]; then \
+		printf 'philby says: make window must run inside the philby tmux session. Start it with: make\n' >&2; \
+		exit 2; \
+	fi; \
+	if ! command -v "$$shell" >/dev/null 2>&1; then \
+		printf 'philby says: shell "%s" not found on PATH.\n' "$$shell" >&2; \
+		exit 127; \
+	fi; \
+	if tmux list-windows -F '#{window_name}' 2>/dev/null | grep -xFq "$$name"; then \
+		tmux select-window -t "$$name"; \
+		printf 'philby says: focused existing %s window.\n' "$$name"; \
+	else \
+		tmux new-window -n "$$name" -c "$(CURDIR)" "$$shell"; \
+		printf 'philby says: opened %s in a new window. Navigate with Ctrl-End/Ctrl-Home; close with Ctrl-Delete.\n' "$$shell"; \
 	fi
 	$(call success)
 

@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := run
 
-.PHONY: help run tmux-start tmux-entry digest digest-raw ingest pane pane-show pi pi-agent pi-check models subagent codex ask reason research twitter ascii-text generate-ascii-text image-demo image-show lg respawn test clean
+.PHONY: help run tmux-start tmux-entry digest digest-raw ingest pane pane-show pi pi-agent pi-check models subagent codex ask reason research twitter ascii-text generate-ascii-text image-demo image-show lg window respawn test clean
 
 help:
 	@$(MAKE) --no-print-directory -f common.mk help
@@ -75,6 +75,9 @@ image-show:
 
 lg:
 	$(MAKE) -f common.mk lg
+
+window:
+	$(MAKE) -f common.mk window
 
 respawn:
 	$(MAKE) -f common.mk respawn
