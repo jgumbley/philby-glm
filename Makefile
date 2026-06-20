@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := run
 
-.PHONY: help run tmux-start tmux-entry digest digest-raw ingest pane pane-show pi pi-agent pi-check models subagent codex ascii-text generate-ascii-text image-demo image-show lg respawn test clean
+.PHONY: help run tmux-start tmux-entry digest digest-raw ingest pane pane-show pi pi-agent pi-check models subagent codex ascii-text generate-ascii-text image-demo image-show lg respawn spec task task-new task-event task-step task-status task-show task-list task-check test clean
 
 help:
 	@$(MAKE) --no-print-directory -f common.mk help
@@ -60,6 +60,30 @@ image-demo:
 
 image-show:
 	$(MAKE) -f common.mk image-show IMAGE="$(IMAGE)"
+
+spec:
+	$(MAKE) -f common.mk spec
+
+task-new:
+	$(MAKE) -f common.mk task-new goal="$(goal)" given="$(given)" when="$(when)" then="$(then)"
+
+task-event:
+	$(MAKE) -f common.mk task-event command="$(command)" exit="$(exit)" summary="$(summary)"
+
+task-step:
+	$(MAKE) -f common.mk task-step step="$(step)" state="$(state)"
+
+task-status:
+	$(MAKE) -f common.mk task-status status="$(status)"
+
+task-show:
+	$(MAKE) -f common.mk task-show id="$(id)"
+
+task-list:
+	$(MAKE) -f common.mk task-list
+
+task-check:
+	$(MAKE) -f common.mk task-check id="$(id)"
 
 lg:
 	$(MAKE) -f common.mk lg

@@ -11,6 +11,7 @@ __pycache__/
 .pi/agent/git/
 .pi/agent/npm/
 .pi/agent/sessions/
+.pi/agent/tasks/
 .pi/agent/*.log
 .pi/git/
 .pi/npm/

@@ -31,6 +31,22 @@
 - Use clear names such as `review`, `research`, `test`, or `impl`.
 - Subagents must also use Makefile targets and must stay inside this repository.
 
+## Task-state objects
+
+- For any non-trivial objective, the agent carries a **task-state object**
+  (see `spec/task.md`, `spec/task.schema.json`, `spec/task.example.json`).
+- Create one with `make task-new goal='...'`; it becomes the current task.
+- Record every meaningful action as a **domain event** appended to the task's
+  `evidence[]` log via `make task-event command='...' exit=N summary='...'`.
+  The log is append-only; never rewrite or delete prior events.
+- Advance plan steps with `make task-step step=... state=...` and overall
+  status with `make task-status status=...`. State vocabularies are fixed by
+  the schema: `status ∈ {active, blocked, done, abandoned}` and
+  `plan[].state ∈ {pending, active, done, blocked}`.
+- `make spec` validates the canonical example deterministically; it does not
+  inspect runtime task state. Validate runtime tasks with `make task-check`.
+- Runtime task objects live under `.pi/agent/tasks/` (gitignored).
+
 ## Principles
 
 - Keep changes narrow and reversible.

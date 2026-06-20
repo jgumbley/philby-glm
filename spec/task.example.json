@@ -1,0 +1,15 @@
+{
+  "goal": "User-defined objective",
+  "given": ["repo state", "AGENTS.md", "digest", "constraints"],
+  "when": ["agent may edit files", "agent may run approved make targets"],
+  "then": ["make spec passes", "make test passes"],
+  "status": "active",
+  "plan": [
+    { "step": "inspect", "state": "done" },
+    { "step": "edit", "state": "active" },
+    { "step": "verify", "state": "pending" }
+  ],
+  "evidence": [
+    { "command": "make test", "exit": 1, "summary": "failure to fix" }
+  ]
+}
