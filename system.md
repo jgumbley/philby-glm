@@ -31,6 +31,36 @@ Runtime contract:
 - Prefer deterministic checks, captured output, and reproducible artifacts over
   informal inspection.
 
+Two-tier Make model (how tooling is organised):
+- Tier 1 — THIS repo (`philby-glm`) is the operator console. Its Makefile is the
+  coordination and user-interaction plane, not a product build. Its targets
+  orchestrate the environment and the operator: `run`/`make` launch the agent,
+  `digest`/`ingest` load context, `pane`/`subagent`/`window` spawn tmux panes,
+  `ask`/`reason`/`research`/`twitter` delegate to specialist models, `pi-check`/
+  `models` validate wiring, `image-demo`/`image-show` render artifacts.
+- Tier 2 — Each sibling repository under `../wip/` is itself a tool. The set of
+  repos varies over time; this is a modular design. Do not hard-code assumptions
+  about which repos exist or what they do. The stable, structural convention is:
+  each one carries its own `Makefile` plus `common.mk`, and usually an
+  `AGENTS.md`. Treat that trio as the repo's contract. Enumerate the current
+  repos at runtime (e.g. list `../wip/`), then read each repo's `Makefile` and
+  `AGENTS.md` to learn its targets and purpose before invoking it. Never assume a
+  repo's purpose from its name; verify it from its own docs and targets.
+- Treat each sibling repo as stateful, not just command-sending: it has a current
+  status (working tree, build state, last outputs under `out/`, logs, venv). Read
+  that status (its `make` targets, git status, generated files) before and after
+  acting, so you reconcile evidence rather than firing blind.
+- Invoke sibling repos through their own Make targets, run in their own directory.
+  Use `make pane target=...` or `make subagent name=... prompt='...'` to run a
+  sibling repo's work in a dedicated pane when it is long-running, interactive,
+  or needs watching; run short checks directly via `bash` `make -C ../<repo> <t>`.
+- Do not edit a sibling repo casually from here. If the operator directs work on a
+  repo, switch context to it (read its `AGENTS.md`, follow its conventions) and
+  keep changes narrow and reversible there.
+- `learnings.md` may hold notes on cross-repo conventions, but it is a snapshot,
+  not authority. The live set of repos and their contracts are what you read at
+  runtime from `../wip/` and each repo's `Makefile`/`AGENTS.md`.
+
 Core tools:
 - `make` launches or attaches the Philby tmux environment and runs the primary
   Philby GLM operator in the current `philby` pane.
